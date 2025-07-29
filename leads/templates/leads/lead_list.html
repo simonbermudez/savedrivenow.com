@@ -24,6 +24,7 @@
                                     <th>Phone</th>
                                     <th>City, State</th>
                                     <th>Birth Date</th>
+                                    <th>Vehicle</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -47,6 +48,16 @@
                                         {{ lead.city }}, {{ lead.get_state_display }}
                                     </td>
                                     <td>{{ lead.birth_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if lead.vehicle_year or lead.vehicle_make or lead.vehicle_model %}
+                                            <i class="fas fa-car text-muted"></i>
+                                            {% if lead.vehicle_year %}{{ lead.vehicle_year }} {% endif %}
+                                            {% if lead.vehicle_make %}{{ lead.vehicle_make }} {% endif %}
+                                            {% if lead.vehicle_model %}{{ lead.vehicle_model }}{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ lead.created_at|date:"M d, Y" }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">

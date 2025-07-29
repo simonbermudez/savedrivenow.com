@@ -69,6 +69,27 @@ class Lead(models.Model):
         help_text="Date of birth (YYYY-MM-DD)"
     )
 
+    # Vehicle Information
+    vehicle_year = models.IntegerField(
+        help_text="Year of the vehicle (e.g., 2020)",
+        null=True,
+        blank=True
+    )
+    
+    vehicle_make = models.CharField(
+        max_length=50,
+        help_text="Vehicle manufacturer (e.g., Toyota, Ford, Honda)",
+        null=True,
+        blank=True
+    )
+    
+    vehicle_model = models.CharField(
+        max_length=50,
+        help_text="Vehicle model (e.g., Camry, F-150, Civic)",
+        null=True,
+        blank=True
+    )
+
     # Metadata fields
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

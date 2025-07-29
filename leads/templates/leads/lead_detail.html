@@ -78,6 +78,53 @@
 
                 <div class="row">
                     <div class="col-md-12">
+                        <h5 class="text-primary">Vehicle Information</h5>
+                        <table class="table table-borderless">
+                            {% if lead.vehicle_year or lead.vehicle_make or lead.vehicle_model %}
+                                <tr>
+                                    <td><strong>Vehicle:</strong></td>
+                                    <td>
+                                        {% if lead.vehicle_year %}{{ lead.vehicle_year }} {% endif %}
+                                        {% if lead.vehicle_make %}{{ lead.vehicle_make }} {% endif %}
+                                        {% if lead.vehicle_model %}{{ lead.vehicle_model }}{% endif %}
+                                        {% if not lead.vehicle_year and not lead.vehicle_make and not lead.vehicle_model %}
+                                            <span class="text-muted">Not provided</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if lead.vehicle_year %}
+                                <tr>
+                                    <td><strong>Year:</strong></td>
+                                    <td>{{ lead.vehicle_year }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if lead.vehicle_make %}
+                                <tr>
+                                    <td><strong>Make:</strong></td>
+                                    <td>{{ lead.vehicle_make }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if lead.vehicle_model %}
+                                <tr>
+                                    <td><strong>Model:</strong></td>
+                                    <td>{{ lead.vehicle_model }}</td>
+                                </tr>
+                                {% endif %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2">
+                                        <span class="text-muted">No vehicle information provided</span>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-12">
                         <h5 class="text-primary">Record Information</h5>
                         <table class="table table-borderless">
                             <tr>

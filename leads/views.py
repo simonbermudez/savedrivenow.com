@@ -32,7 +32,7 @@ def lead_create_view(request):
     else:
         form = LeadForm()
     
-    return render(request, 'leads/lead_create.html', {'form': form})
+    return render(request, 'leads/landing.html', {'form': form})
 
 
 def lead_detail_view(request, pk):
