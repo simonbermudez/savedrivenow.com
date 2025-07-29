@@ -8,6 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Places API - Get your API key from Google Cloud Console -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_places_api_key }}&libraries=places&callback=initAutocomplete"></script>
+    <!-- Cloudflare Turnstile CAPTCHA -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -376,6 +378,18 @@
                         </div>
                     </div>
                     
+                    <!-- CAPTCHA Section -->
+                    <div class="row mb-4">
+                        <div class="col-12 text-center">
+                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+                            {% if form.captcha.errors %}
+                                <div class="text-danger small mt-2">
+                                    {{ form.captcha.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-arrow-right me-2"></i>Get My Free Quote
@@ -558,6 +572,7 @@
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    console.log('Form submission started');
                     let isValid = true;
                     const requiredAddressFields = [
                         { field: addressField, name: 'Address' },
@@ -577,9 +592,39 @@
                         addValidationStyling(zipField, false);
                     }
 
+                    // Get CAPTCHA response - Turnstile creates an input with name "cf-turnstile-response"
+                    const turnstileResponse = document.querySelector('input[name="cf-turnstile-response"]');
+                    console.log('Turnstile response element:', turnstileResponse);
+                    console.log('Turnstile response value:', turnstileResponse ? turnstileResponse.value : 'not found');
+                    
+                    if (turnstileResponse && turnstileResponse.value) {
+                        // Add CAPTCHA response to form data
+                        let captchaField = document.querySelector('input[name="captcha"]');
+                        if (!captchaField) {
+                            captchaField = document.createElement('input');
+                            captchaField.type = 'hidden';
+                            captchaField.name = 'captcha';
+                            form.appendChild(captchaField);
+                        }
+                        captchaField.value = turnstileResponse.value;
+                        console.log('CAPTCHA token set:', captchaField.value);
+                    } else {
+                        isValid = false;
+                        console.log('CAPTCHA validation failed');
+                        alert('Please complete the CAPTCHA verification.');
+                    }
+
+                    console.log('Form validation result:', isValid);
+                    
                     if (!isValid) {
                         e.preventDefault();
-                        alert('Please complete all address fields with valid information.');
+                        if (!turnstileResponse || !turnstileResponse.value) {
+                            console.log('Preventing form submission due to missing CAPTCHA');
+                        } else {
+                            alert('Please complete all address fields with valid information.');
+                        }
+                    } else {
+                        console.log('Form submission allowed to proceed');
                     }
                 });
             }

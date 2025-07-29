@@ -1,9 +1,13 @@
 from django import forms
 from django.core.validators import RegexValidator
 from .models import Lead
+from .turnstile import TurnstileField
 
 
 class LeadForm(forms.ModelForm):
+    # Add CAPTCHA field
+    captcha = TurnstileField()
+    
     class Meta:
         model = Lead
         fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date', 'vehicle_year', 'vehicle_make', 'vehicle_model']

@@ -137,3 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Google Places API Key
 # Get your API key from: https://developers.google.com/maps/documentation/places/web-service/get-api-key
 GOOGLE_PLACES_API_KEY = os.environ.get('GOOGLE_PLACES_API_KEY', 'YOUR_API_KEY')
+
+# Cloudflare Turnstile CAPTCHA
+# Get your keys from: https://developers.cloudflare.com/turnstile/get-started/
+TURNSTILE_SITE_KEY = os.environ.get('TURNSTILE_SITE_KEY', '1x00000000000000000000AA')
+TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '1x0000000000000000000000000000000AA')

@@ -20,13 +20,19 @@ class LeadListView(ListView):
 def lead_create_view(request):
     """Create a new lead"""
     if request.method == 'POST':
+        print("POST request received")
+        print("POST data:", request.POST)
         form = LeadForm(request.POST)
+        print("Form is valid:", form.is_valid())
+        if not form.is_valid():
+            print("Form errors:", form.errors)
         if form.is_valid():
             try:
                 lead = form.save()
                 messages.success(request, f'Lead "{lead.full_name}" has been created successfully!')
                 return redirect('lead_list')
             except Exception as e:
+                print("Error saving lead:", str(e))
                 messages.error(request, f'Error creating lead: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -35,7 +41,8 @@ def lead_create_view(request):
     
     context = {
         'form': form,
-        'google_places_api_key': settings.GOOGLE_PLACES_API_KEY
+        'google_places_api_key': settings.GOOGLE_PLACES_API_KEY,
+        'turnstile_site_key': settings.TURNSTILE_SITE_KEY
     }
     return render(request, 'leads/landing.html', context)
 
