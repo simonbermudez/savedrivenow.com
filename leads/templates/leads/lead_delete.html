@@ -1,0 +1,55 @@
+{% extends 'leads/base.html' %}
+
+{% block title %}Delete {{ lead.full_name }} - SaveDriveNow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-warning"></i>
+                    <strong>Warning!</strong> This action cannot be undone.
+                </div>
+
+                <p class="lead">Are you sure you want to delete the following lead?</p>
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lead.full_name }}</h5>
+                        <p class="card-text">
+                            <strong>Email:</strong> {{ lead.email }}<br>
+                            <strong>Phone:</strong> {{ lead.phone_number }}<br>
+                            <strong>Address:</strong> {{ lead.address }}, {{ lead.city }}, {{ lead.get_state_display }}<br>
+                            <strong>Birth Date:</strong> {{ lead.birth_date|date:"F d, Y" }}<br>
+                            <strong>Created:</strong> {{ lead.created_at|date:"F d, Y g:i A" }}
+                        </p>
+                    </div>
+                </div>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="{% url 'lead_detail' lead.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Details
+                            </a>
+                            <a href="{% url 'lead_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Yes, Delete Lead
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
