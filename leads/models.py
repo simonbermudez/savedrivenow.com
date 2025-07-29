@@ -27,6 +27,12 @@ class Lead(models.Model):
         regex=r'^\+?1?\d{9,15}$',
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
     )
+    
+    # ZIP code validator
+    zip_regex = RegexValidator(
+        regex=r'^\d{5}(-\d{4})?$',
+        message="ZIP code must be in format: 12345 or 12345-6789"
+    )
 
     # Full Name
     full_name = models.CharField(
@@ -49,6 +55,12 @@ class Lead(models.Model):
         max_length=2,
         choices=STATE_CHOICES,
         help_text="Select a state"
+    )
+    
+    zip_code = models.CharField(
+        max_length=10,
+        validators=[zip_regex],
+        help_text="ZIP code (e.g., 12345 or 12345-6789)"
     )
 
     # Phone Number with validation

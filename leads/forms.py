@@ -1,11 +1,12 @@
 from django import forms
+from django.core.validators import RegexValidator
 from .models import Lead
 
 
 class LeadForm(forms.ModelForm):
     class Meta:
         model = Lead
-        fields = ['full_name', 'address', 'city', 'state', 'phone_number', 'email', 'birth_date', 'vehicle_year', 'vehicle_make', 'vehicle_model']
+        fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date', 'vehicle_year', 'vehicle_make', 'vehicle_model']
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -21,6 +22,10 @@ class LeadForm(forms.ModelForm):
             }),
             'state': forms.Select(attrs={
                 'class': 'form-control'
+            }),
+            'zip_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter ZIP code'
             }),
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -54,7 +59,7 @@ class LeadForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make most fields required, but vehicle fields optional
-        required_fields = ['full_name', 'address', 'city', 'state', 'phone_number', 'email', 'birth_date']
+        required_fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date']
         for field_name in required_fields:
             if field_name in self.fields:
                 self.fields[field_name].required = True
@@ -70,9 +75,41 @@ class LeadForm(forms.ModelForm):
         self.fields['address'].label = 'Street Address'
         self.fields['city'].label = 'City'
         self.fields['state'].label = 'State'
+        self.fields['zip_code'].label = 'ZIP Code'
         self.fields['phone_number'].label = 'Phone Number'
         self.fields['email'].label = 'Email Address'
         self.fields['birth_date'].label = 'Date of Birth'
         self.fields['vehicle_year'].label = 'Vehicle Year'
         self.fields['vehicle_make'].label = 'Vehicle Make'
         self.fields['vehicle_model'].label = 'Vehicle Model'
+
+    def clean_zip_code(self):
+        """Validate ZIP code format"""
+        zip_code = self.cleaned_data.get('zip_code')
+        if zip_code:
+            # Remove any spaces and validate format
+            zip_code = zip_code.replace(' ', '')
+            zip_validator = RegexValidator(
+                regex=r'^\d{5}(-\d{4})?$',
+                message="Enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+            )
+            zip_validator(zip_code)
+        return zip_code
+
+    def clean_address(self):
+        """Validate street address"""
+        address = self.cleaned_data.get('address')
+        if address:
+            address = address.strip()
+            if len(address) < 5:
+                raise forms.ValidationError("Please enter a complete street address.")
+        return address
+
+    def clean_city(self):
+        """Validate city name"""
+        city = self.cleaned_data.get('city')
+        if city:
+            city = city.strip().title()
+            if len(city) < 2:
+                raise forms.ValidationError("Please enter a valid city name.")
+        return city

@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-8 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="{{ form.city.id_for_label }}" class="form-label">
                                 {{ form.city.label }}
                                 <span class="text-danger">*</span>
@@ -58,7 +58,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="{{ form.state.id_for_label }}" class="form-label">
                                 {{ form.state.label }}
                                 <span class="text-danger">*</span>
@@ -67,6 +67,18 @@
                             {% if form.state.errors %}
                                 <div class="text-danger small">
                                     {{ form.state.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.zip_code.id_for_label }}" class="form-label">
+                                {{ form.zip_code.label }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.zip_code }}
+                            {% if form.zip_code.errors %}
+                                <div class="text-danger small">
+                                    {{ form.zip_code.errors }}
                                 </div>
                             {% endif %}
                         </div>

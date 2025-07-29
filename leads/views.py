@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.generic import ListView
 from django.core.paginator import Paginator
+from django.conf import settings
 from .models import Lead
 from .forms import LeadForm
 
@@ -32,7 +33,11 @@ def lead_create_view(request):
     else:
         form = LeadForm()
     
-    return render(request, 'leads/landing.html', {'form': form})
+    context = {
+        'form': form,
+        'google_places_api_key': settings.GOOGLE_PLACES_API_KEY
+    }
+    return render(request, 'leads/landing.html', context)
 
 
 def lead_detail_view(request, pk):

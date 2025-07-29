@@ -6,6 +6,8 @@
     <title>SaveDriveNow.com - Compare Auto Insurance Rates in Minutes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Places API - Get your API key from Google Cloud Console -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_places_api_key }}&libraries=places&callback=initAutocomplete"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -132,6 +134,38 @@
             color: #000000 !important;
         }
         
+        /* Google Places Autocomplete Styling */
+        .pac-container {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .pac-item {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        
+        .pac-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .pac-item-selected {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .address-validation-error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .address-validation-success {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+        
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
@@ -240,7 +274,7 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label for="{{ form.city.id_for_label }}" class="form-label">
                                 {{ form.city.label }} <span class="text-danger">*</span>
                             </label>
@@ -251,7 +285,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="{{ form.state.id_for_label }}" class="form-label">
                                 {{ form.state.label }} <span class="text-danger">*</span>
                             </label>
@@ -259,6 +293,17 @@
                             {% if form.state.errors %}
                                 <div class="text-danger small mt-1">
                                     {{ form.state.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.zip_code.id_for_label }}" class="form-label">
+                                {{ form.zip_code.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.zip_code }}
+                            {% if form.zip_code.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.zip_code.errors }}
                                 </div>
                             {% endif %}
                         </div>
@@ -348,5 +393,200 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let autocomplete;
+        let addressField;
+        let cityField;
+        let stateField;
+        let zipField;
+
+        function initAutocomplete() {
+            // Get form field elements
+            addressField = document.getElementById('id_address');
+            cityField = document.getElementById('id_city');
+            stateField = document.getElementById('id_state');
+            zipField = document.getElementById('id_zip_code');
+
+            if (!addressField) return; // Exit if address field not found
+
+            // Create autocomplete object for address field
+            autocomplete = new google.maps.places.Autocomplete(addressField, {
+                types: ['address'],
+                componentRestrictions: { country: 'us' }
+            });
+
+            // Set fields to return from Places API
+            autocomplete.setFields(['address_components', 'formatted_address']);
+
+            // Add listener for when user selects an address
+            autocomplete.addListener('place_changed', fillInAddress);
+
+            // Add manual validation when fields change
+            setupManualValidation();
+        }
+
+        function fillInAddress() {
+            const place = autocomplete.getPlace();
+            
+            if (!place.address_components) {
+                console.log("No address details available for input: '" + place.name + "'");
+                return;
+            }
+
+            // Clear existing values
+            let street_number = '';
+            let route = '';
+            let city = '';
+            let state = '';
+            let zip = '';
+
+            // Extract address components
+            for (let component of place.address_components) {
+                const componentType = component.types[0];
+                
+                switch (componentType) {
+                    case 'street_number':
+                        street_number = component.long_name;
+                        break;
+                    case 'route':
+                        route = component.long_name;
+                        break;
+                    case 'locality':
+                        city = component.long_name;
+                        break;
+                    case 'administrative_area_level_1':
+                        state = component.short_name;
+                        break;
+                    case 'postal_code':
+                        zip = component.long_name;
+                        break;
+                }
+            }
+
+            // Fill in the form fields
+            addressField.value = `${street_number} ${route}`.trim();
+            cityField.value = city;
+            zipField.value = zip;
+
+            // Set state dropdown
+            if (state) {
+                for (let option of stateField.options) {
+                    if (option.value === state) {
+                        stateField.value = state;
+                        break;
+                    }
+                }
+            }
+
+            // Add success styling
+            addValidationStyling(addressField, true);
+            addValidationStyling(cityField, true);
+            addValidationStyling(stateField, true);
+            addValidationStyling(zipField, true);
+
+            // Trigger change events
+            [addressField, cityField, stateField, zipField].forEach(field => {
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+
+        function setupManualValidation() {
+            // Add validation for manual address entry
+            const addressFields = [addressField, cityField, stateField, zipField];
+            
+            addressFields.forEach(field => {
+                if (field) {
+                    field.addEventListener('blur', function() {
+                        validateAddressField(this);
+                    });
+                    
+                    field.addEventListener('input', function() {
+                        // Remove error styling while typing
+                        this.classList.remove('address-validation-error');
+                    });
+                }
+            });
+        }
+
+        function validateAddressField(field) {
+            const isValid = field.value.trim().length > 0;
+            addValidationStyling(field, isValid);
+            return isValid;
+        }
+
+        function addValidationStyling(field, isValid) {
+            field.classList.remove('address-validation-error', 'address-validation-success');
+            if (field.value.trim().length > 0) {
+                field.classList.add(isValid ? 'address-validation-success' : 'address-validation-error');
+            }
+        }
+
+        // Validate ZIP code format
+        function validateZipCode(zipCode) {
+            const zipPattern = /^\d{5}(-\d{4})?$/;
+            return zipPattern.test(zipCode);
+        }
+
+        // Enhanced ZIP code validation
+        if (document.getElementById('id_zip_code')) {
+            document.getElementById('id_zip_code').addEventListener('blur', function() {
+                const isValid = validateZipCode(this.value.trim());
+                addValidationStyling(this, isValid);
+                
+                if (!isValid && this.value.trim().length > 0) {
+                    // Show error message
+                    let errorDiv = this.parentNode.querySelector('.zip-error');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-danger small mt-1 zip-error';
+                        this.parentNode.appendChild(errorDiv);
+                    }
+                    errorDiv.textContent = 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)';
+                } else {
+                    // Remove error message
+                    const errorDiv = this.parentNode.querySelector('.zip-error');
+                    if (errorDiv) {
+                        errorDiv.remove();
+                    }
+                }
+            });
+        }
+
+        // Form submission validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    const requiredAddressFields = [
+                        { field: addressField, name: 'Address' },
+                        { field: cityField, name: 'City' },
+                        { field: stateField, name: 'State' },
+                        { field: zipField, name: 'ZIP Code' }
+                    ];
+
+                    requiredAddressFields.forEach(item => {
+                        if (item.field && !validateAddressField(item.field)) {
+                            isValid = false;
+                        }
+                    });
+
+                    if (zipField && !validateZipCode(zipField.value.trim())) {
+                        isValid = false;
+                        addValidationStyling(zipField, false);
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Please complete all address fields with valid information.');
+                    }
+                });
+            }
+        });
+
+        // Initialize autocomplete when the page loads
+        window.initAutocomplete = initAutocomplete;
+    </script>
 </body>
 </html>

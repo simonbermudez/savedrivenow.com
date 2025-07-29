@@ -22,7 +22,7 @@
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>City, State</th>
+                                    <th>City, State, ZIP</th>
                                     <th>Birth Date</th>
                                     <th>Vehicle</th>
                                     <th>Created</th>
@@ -45,7 +45,7 @@
                                     </td>
                                     <td>
                                         <i class="fas fa-map-marker-alt text-muted"></i>
-                                        {{ lead.city }}, {{ lead.get_state_display }}
+                                        {{ lead.city }}, {{ lead.get_state_display }} {{ lead.zip_code }}
                                     </td>
                                     <td>{{ lead.birth_date|date:"M d, Y" }}</td>
                                     <td>

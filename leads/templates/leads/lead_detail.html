@@ -62,11 +62,15 @@
                                 <td>{{ lead.get_state_display }}</td>
                             </tr>
                             <tr>
+                                <td><strong>ZIP Code:</strong></td>
+                                <td>{{ lead.zip_code }}</td>
+                            </tr>
+                            <tr>
                                 <td><strong>Full Address:</strong></td>
                                 <td>
                                     <address class="mb-0">
                                         {{ lead.address }}<br>
-                                        {{ lead.city }}, {{ lead.get_state_display }}
+                                        {{ lead.city }}, {{ lead.get_state_display }} {{ lead.zip_code }}
                                     </address>
                                 </td>
                             </tr>
