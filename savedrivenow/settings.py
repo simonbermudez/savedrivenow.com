@@ -26,8 +26,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-=t_s!ose33&06r)*j=j4)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,savedrivenow.siber.live').split(',')
 
+# CSRF trusted origins for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://savedrivenow.siber.live',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Application definition
 
