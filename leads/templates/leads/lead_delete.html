@@ -25,7 +25,7 @@
                         <p class="card-text">
                             <strong>Email:</strong> {{ lead.email }}<br>
                             <strong>Phone:</strong> {{ lead.phone_number }}<br>
-                            <strong>Address:</strong> {{ lead.address }}, {{ lead.city }}, {{ lead.get_state_display }}<br>
+                            <strong>Address:</strong> {{ lead.address }}, {{ lead.city }}, {{ lead.state }}<br>
                             <strong>Birth Date:</strong> {{ lead.birth_date|date:"F d, Y" }}<br>
                             <strong>Created:</strong> {{ lead.created_at|date:"F d, Y g:i A" }}
                         </p>
