@@ -457,41 +457,30 @@
 
             // Extract address components
             for (let component of place.address_components) {
-                const componentType = component.types[0];
-                
-                switch (componentType) {
-                    case 'street_number':
-                        street_number = component.long_name;
-                        break;
-                    case 'route':
-                        route = component.long_name;
-                        break;
-                    case 'locality':
-                        city = component.long_name;
-                        break;
-                    case 'administrative_area_level_1':
-                        state = component.short_name;
-                        break;
-                    case 'postal_code':
-                        zip = component.long_name;
-                        break;
+                if (component.types.includes('street_number')) {
+                    street_number = component.long_name;
+                }
+                if (component.types.includes('route')) {
+                    route = component.long_name;
+                }
+                if (component.types.includes('locality') || component.types.includes('sublocality') || component.types.includes('postal_town')) {
+                    city = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                    state = component.short_name;
+                }
+                if (component.types.includes('postal_code')) {
+                    zip = component.long_name;
                 }
             }
 
             // Fill in the form fields
             addressField.value = `${street_number} ${route}`.trim();
             cityField.value = city;
+            stateField.value = state;
             zipField.value = zip;
 
-            // Set state dropdown
-            if (state) {
-                for (let option of stateField.options) {
-                    if (option.value === state) {
-                        stateField.value = state;
-                        break;
-                    }
-                }
-            }
+            console.log(place.address_components)
 
             // Add success styling
             addValidationStyling(addressField, true);
@@ -534,37 +523,6 @@
             if (field.value.trim().length > 0) {
                 field.classList.add(isValid ? 'address-validation-success' : 'address-validation-error');
             }
-        }
-
-        // Validate ZIP code format
-        function validateZipCode(zipCode) {
-            const zipPattern = /^\d{5}(-\d{4})?$/;
-            return zipPattern.test(zipCode);
-        }
-
-        // Enhanced ZIP code validation
-        if (document.getElementById('id_zip_code')) {
-            document.getElementById('id_zip_code').addEventListener('blur', function() {
-                const isValid = validateZipCode(this.value.trim());
-                addValidationStyling(this, isValid);
-                
-                if (!isValid && this.value.trim().length > 0) {
-                    // Show error message
-                    let errorDiv = this.parentNode.querySelector('.zip-error');
-                    if (!errorDiv) {
-                        errorDiv = document.createElement('div');
-                        errorDiv.className = 'text-danger small mt-1 zip-error';
-                        this.parentNode.appendChild(errorDiv);
-                    }
-                    errorDiv.textContent = 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789)';
-                } else {
-                    // Remove error message
-                    const errorDiv = this.parentNode.querySelector('.zip-error');
-                    if (errorDiv) {
-                        errorDiv.remove();
-                    }
-                }
-            });
         }
 
         // Form submission validation

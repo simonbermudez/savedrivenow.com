@@ -24,7 +24,7 @@ class LeadForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Enter your city'
             }),
-            'state': forms.Select(attrs={
+            'state': forms.TextInput(attrs={
                 'class': 'form-control'
             }),
             'zip_code': forms.TextInput(attrs={
