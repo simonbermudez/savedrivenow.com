@@ -4,6 +4,40 @@ from django.core.exceptions import ValidationError
 import re
 
 
+class Vehicle(models.Model):
+    """Model to store vehicle information for leads"""
+    lead = models.ForeignKey(
+        'Lead',
+        on_delete=models.CASCADE,
+        related_name='vehicles',
+        help_text="The lead who owns this vehicle"
+    )
+    
+    year = models.IntegerField(
+        help_text="Year of the vehicle (e.g., 2020)"
+    )
+    
+    make = models.CharField(
+        max_length=50,
+        help_text="Vehicle manufacturer (e.g., Toyota, Ford, Honda)"
+    )
+    
+    model = models.CharField(
+        max_length=50,
+        help_text="Vehicle model (e.g., Camry, F-150, Civic)"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Vehicle"
+        verbose_name_plural = "Vehicles"
+    
+    def __str__(self):
+        return f"{self.year} {self.make} {self.model}"
+
+
 class Lead(models.Model):
     # Phone number validator
     phone_regex = RegexValidator(
@@ -63,25 +97,21 @@ class Lead(models.Model):
         help_text="Date of birth (YYYY-MM-DD)"
     )
 
-    # Vehicle Information
-    vehicle_year = models.IntegerField(
-        help_text="Year of the vehicle (e.g., 2020)",
-        null=True,
-        blank=True
+    # Driving history
+    tickets_past_year = models.IntegerField(
+        default=0,
+        help_text="Number of traffic tickets received in the past year"
     )
-    
-    vehicle_make = models.CharField(
-        max_length=50,
-        help_text="Vehicle manufacturer (e.g., Toyota, Ford, Honda)",
-        null=True,
-        blank=True
+
+    accidents_past_year = models.IntegerField(
+        default=0,
+        help_text="Number of accidents in the past year"
     )
-    
-    vehicle_model = models.CharField(
-        max_length=50,
-        help_text="Vehicle model (e.g., Camry, F-150, Civic)",
-        null=True,
-        blank=True
+
+    # Property ownership
+    is_homeowner = models.BooleanField(
+        default=False,
+        help_text="Is the lead a homeowner?"
     )
 
     # Metadata fields

@@ -1,7 +1,36 @@
 from django import forms
 from django.core.validators import RegexValidator
-from .models import Lead
+from .models import Lead, Vehicle
 from .turnstile import TurnstileField
+
+
+class VehicleForm(forms.ModelForm):
+    """Form for adding vehicle information"""
+    class Meta:
+        model = Vehicle
+        fields = ['year', 'make', 'model']
+        widgets = {
+            'year': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 2020',
+                'min': '1900',
+                'max': '2025'
+            }),
+            'make': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Toyota, Ford, Honda'
+            }),
+            'model': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., Camry, F-150, Civic'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['year'].label = 'Vehicle Year'
+        self.fields['make'].label = 'Vehicle Make'
+        self.fields['model'].label = 'Vehicle Model'
 
 
 class LeadForm(forms.ModelForm):
@@ -10,7 +39,7 @@ class LeadForm(forms.ModelForm):
     
     class Meta:
         model = Lead
-        fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date', 'vehicle_year', 'vehicle_make', 'vehicle_model']
+        fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date', 'tickets_past_year', 'accidents_past_year', 'is_homeowner']
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -44,32 +73,33 @@ class LeadForm(forms.ModelForm):
                 'type': 'date',
                 'placeholder': 'mm/dd/yyyy'
             }),
-            'vehicle_year': forms.NumberInput(attrs={
+            'tickets_past_year': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., 2020',
-                'min': '1900',
-                'max': '2025'
+                'placeholder': '0',
+                'min': '0',
+                'value': '0'
             }),
-            'vehicle_make': forms.TextInput(attrs={
+            'accidents_past_year': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., Toyota, Ford, Honda'
+                'placeholder': '0',
+                'min': '0',
+                'value': '0'
             }),
-            'vehicle_model': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g., Camry, F-150, Civic'
+            'is_homeowner': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
             }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make most fields required, but vehicle fields optional
+        # Make most fields required, but some fields optional
         required_fields = ['full_name', 'address', 'city', 'state', 'zip_code', 'phone_number', 'email', 'birth_date']
         for field_name in required_fields:
             if field_name in self.fields:
                 self.fields[field_name].required = True
         
-        # Vehicle fields are optional
-        optional_fields = ['vehicle_year', 'vehicle_make', 'vehicle_model']
+        # Optional fields
+        optional_fields = ['tickets_past_year', 'accidents_past_year', 'is_homeowner']
         for field_name in optional_fields:
             if field_name in self.fields:
                 self.fields[field_name].required = False
@@ -83,9 +113,9 @@ class LeadForm(forms.ModelForm):
         self.fields['phone_number'].label = 'Phone Number'
         self.fields['email'].label = 'Email Address'
         self.fields['birth_date'].label = 'Date of Birth'
-        self.fields['vehicle_year'].label = 'Vehicle Year'
-        self.fields['vehicle_make'].label = 'Vehicle Make'
-        self.fields['vehicle_model'].label = 'Vehicle Model'
+        self.fields['tickets_past_year'].label = 'Tickets in Past Year'
+        self.fields['accidents_past_year'].label = 'Accidents in Past Year'
+        self.fields['is_homeowner'].label = 'Are you a homeowner?'
 
     def clean_zip_code(self):
         """Validate ZIP code format"""
@@ -99,6 +129,20 @@ class LeadForm(forms.ModelForm):
             )
             zip_validator(zip_code)
         return zip_code
+
+    def clean_tickets_past_year(self):
+        """Ensure tickets_past_year defaults to 0 if empty"""
+        tickets = self.cleaned_data.get('tickets_past_year')
+        if tickets is None or tickets == '':
+            return 0
+        return tickets
+
+    def clean_accidents_past_year(self):
+        """Ensure accidents_past_year defaults to 0 if empty"""
+        accidents = self.cleaned_data.get('accidents_past_year')
+        if accidents is None or accidents == '':
+            return 0
+        return accidents
 
     def clean_address(self):
         """Validate street address"""
