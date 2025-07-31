@@ -1,3 +1,8 @@
 GOOGLE_PLACES_API_KEY=
 TURNSTILE_SITE_KEY=
 TURNSTILE_SECRET_KEY=
+
+# Email configuration (Zoho SMTP)
+EMAIL_HOST_USER=leads@savedrivenow.com
+EMAIL_HOST_PASSWORD=your_zoho_password_here
+DEFAULT_FROM_EMAIL=leads@savedrivenow.com
