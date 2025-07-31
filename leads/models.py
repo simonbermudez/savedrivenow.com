@@ -144,6 +144,7 @@ class Lead(models.Model):
     def save(self, *args, **kwargs):
         """Override save method to run full_clean"""
         self.full_clean()
+        LeadsSubscriber.email_leads_to_active_subscribers(self)
         super().save(*args, **kwargs)
 
 
@@ -163,6 +164,11 @@ class LeadsSubscriber(models.Model):
     number_of_leads_sent = models.PositiveIntegerField(
         default=0,
         help_text="Total number of leads sent to this subscriber"
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Is the subscriber currently active?"
     )
     
     # Metadata fields
@@ -196,6 +202,7 @@ class LeadsSubscriber(models.Model):
     def save(self, *args, **kwargs):
         """Override save method to run full_clean"""
         self.full_clean()
+        self.is_active = self.can_receive_lead()
         super().save(*args, **kwargs)
     
     @property
@@ -206,3 +213,21 @@ class LeadsSubscriber(models.Model):
     def can_receive_lead(self):
         """Check if subscriber can receive another lead"""
         return self.remaining_leads > 0
+
+    @classmethod
+    def email_leads_to_active_subscribers(cls, lead):
+        """Send lead information to all active subscribers"""
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
+        active_subscribers = cls.objects.filter(is_active=True)
+        
+        for subscriber in active_subscribers:
+            send_mail(
+                subject=f"New Lead: {lead.full_name}",
+                message=f"New lead details:\n\n{lead}\n\nContact them at {lead.email} or {lead.phone_number}.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[subscriber.email],
+            )
+            subscriber.number_of_leads_sent += 1
+            subscriber.save()
