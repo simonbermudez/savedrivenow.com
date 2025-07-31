@@ -145,3 +145,64 @@ class Lead(models.Model):
         """Override save method to run full_clean"""
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class LeadsSubscriber(models.Model):
+    """Model to track subscribers who receive leads via email"""
+    
+    email = models.EmailField(
+        unique=True,
+        help_text="Email address of the subscriber who receives leads"
+    )
+    
+    number_of_leads_purchased = models.PositiveIntegerField(
+        default=0,
+        help_text="Total number of leads purchased by this subscriber"
+    )
+    
+    number_of_leads_sent = models.PositiveIntegerField(
+        default=0,
+        help_text="Total number of leads sent to this subscriber"
+    )
+    
+    # Metadata fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Leads Subscriber"
+        verbose_name_plural = "Leads Subscribers"
+    
+    def __str__(self):
+        return f"{self.email} - Purchased: {self.number_of_leads_purchased}, Sent: {self.number_of_leads_sent}"
+    
+    def clean(self):
+        """Custom validation method"""
+        super().clean()
+        
+        # Validate email format (additional validation)
+        if self.email:
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_pattern, self.email):
+                raise ValidationError({'email': 'Enter a valid email address.'})
+        
+        # Validate that number_of_leads_sent doesn't exceed number_of_leads_purchased
+        if self.number_of_leads_sent > self.number_of_leads_purchased:
+            raise ValidationError({
+                'number_of_leads_sent': 'Number of leads sent cannot exceed number of leads purchased.'
+            })
+    
+    def save(self, *args, **kwargs):
+        """Override save method to run full_clean"""
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
+    @property
+    def remaining_leads(self):
+        """Calculate the number of remaining leads"""
+        return self.number_of_leads_purchased - self.number_of_leads_sent
+    
+    def can_receive_lead(self):
+        """Check if subscriber can receive another lead"""
+        return self.remaining_leads > 0

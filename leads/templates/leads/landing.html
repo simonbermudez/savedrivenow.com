@@ -136,6 +136,25 @@
             color: #000000 !important;
         }
         
+        /* Checkbox styling to ensure proper display */
+        .form-check-label {
+            color: #000000 !important;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .form-check-input {
+            margin-top: 0.125rem;
+            cursor: pointer;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            min-height: 1.5rem;
+        }
+        
         /* Google Places Autocomplete Styling */
         .pac-container {
             border-radius: 8px;
@@ -193,7 +212,8 @@
     <div class="hero-section">
         <div class="container">
             <h1 class="hero-title">
-                <span class="car-emoji">🚗</span>SaveDriveNow.com
+                <!-- Logo image centered -->
+                <img src="/static/logo.png" alt="SaveDriveNow" class="img-fluid mx-auto d-block">
             </h1>
             <h2 class="hero-subtitle">Compare Auto Insurance Rates in Minutes</h2>
             <p class="hero-description">
@@ -370,7 +390,7 @@
                             <div class="form-check mt-4">
                                 {{ lead_form.is_homeowner }}
                                 <label class="form-check-label" for="{{ lead_form.is_homeowner.id_for_label }}">
-                                    {{ lead_form.is_homeowner.label }}
+                                    Are you a homeowner?
                                 </label>
                             </div>
                             {% if lead_form.is_homeowner.errors %}
