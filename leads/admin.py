@@ -62,7 +62,7 @@ class LeadsSubscriberAdmin(admin.ModelAdmin):
     list_display = ('email', 'number_of_leads_purchased', 'number_of_leads_sent', 'remaining_leads', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at', 'updated_at')
     search_fields = ('email',)
-    readonly_fields = ('created_at', 'updated_at', 'remaining_leads')
+    readonly_fields = ('created_at', 'updated_at', 'remaining_leads', 'number_of_leads_sent', 'remaining_leads', 'is_active')
     ordering = ('-created_at',)
     
     def remaining_leads(self, obj):
