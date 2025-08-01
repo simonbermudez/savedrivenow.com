@@ -20,6 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from leads.views import lead_create_view, thank_you_view
 
+# Django Admin customization
+admin.site.site_header = "SaveDriveNow Admin"
+admin.site.site_title = "SaveDriveNow Admin"
+admin.site.index_title = "Welcome to SaveDriveNow Admin"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('leads/', include('leads.urls')),
