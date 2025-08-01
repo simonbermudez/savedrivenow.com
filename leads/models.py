@@ -142,24 +142,11 @@ class Lead(models.Model):
             raise ValidationError({'birth_date': 'Birth date cannot be in the future.'})
 
     def save(self, *args, **kwargs):
-        """Override save method to run full_clean and send notifications"""
+        """Override save method to run full_clean"""
         self.full_clean()
         
-        # Check if this is a new lead (being created for the first time)
-        is_new_lead = self.pk is None
-        
-        # Save the lead first
+        # Just save the lead - notifications will be sent manually from the view
         super().save(*args, **kwargs)
-        
-        # Send notifications only for new leads
-        if is_new_lead:
-            # Send notification to subscribers
-            LeadsSubscriber.email_leads_to_active_subscribers(self)
-            
-            # Optionally send welcome email to the lead
-            # Uncomment the lines below if you want to send welcome emails
-            # from .email_utils import send_welcome_email
-            # send_welcome_email(self)
 
 
 class LeadsSubscriber(models.Model):
@@ -230,7 +217,18 @@ class LeadsSubscriber(models.Model):
 
     @classmethod
     def email_leads_to_active_subscribers(cls, lead):
-        """Send lead information to all active subscribers using beautiful HTML templates"""
+        """Send lead information to all active subscribers using async tasks"""
+        try:
+            from .tasks import send_emails_to_subscribers_async
+            # Queue the task to send emails asynchronously
+            send_emails_to_subscribers_async.delay(lead.id)
+        except ImportError:
+            # Fallback to synchronous sending if Celery is not available
+            cls.email_leads_to_active_subscribers_sync(lead)
+    
+    @classmethod
+    def email_leads_to_active_subscribers_sync(cls, lead):
+        """Send lead information to all active subscribers synchronously (fallback)"""
         from .email_utils import send_lead_notification_email
         
         active_subscribers = cls.objects.filter(is_active=True)

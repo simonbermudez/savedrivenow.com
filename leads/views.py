@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.db import transaction
 from django.forms import inlineformset_factory
-from .models import Lead, Vehicle
+from .models import Lead, Vehicle, LeadsSubscriber
 from .forms import LeadForm, VehicleForm
 
 
@@ -76,6 +76,16 @@ def lead_create_view(request):
                     message = f'Lead "{lead.full_name}" has been created successfully!'
                     if saved_vehicles > 0:
                         message += f' {saved_vehicles} vehicle(s) added.'
+                    
+                    # Send notifications AFTER vehicles are saved
+                    LeadsSubscriber.email_leads_to_active_subscribers(lead)
+                    
+                    # Optionally send welcome email to the lead (uncomment if desired)
+                    # try:
+                    #     from .tasks import send_welcome_email_async
+                    #     send_welcome_email_async.delay(lead.id)
+                    # except ImportError:
+                    #     pass  # Skip welcome email if Celery not available
                     
                     messages.success(request, message)
                     return redirect('lead_list')

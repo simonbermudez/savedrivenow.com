@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
   web:
     build: .
     volumes:
@@ -14,8 +23,44 @@ services:
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - db
+      - redis
+
+  celery:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=sqlite:///db.sqlite3
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A savedrivenow worker --loglevel=info --concurrency=4
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  celery-beat:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=sqlite:///db.sqlite3
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A savedrivenow beat --loglevel=info
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
 
   db:
     image: postgres:15
@@ -40,3 +85,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
