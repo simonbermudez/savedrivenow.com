@@ -18,11 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from leads.views import lead_create_view
+from leads.views import lead_create_view, thank_you_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('leads/', include('leads.urls')),
+    path('thank-you/', thank_you_view, name='thank_you'),  # Direct route to thank you page
     path('', lead_create_view),  # Make leads the default page
 ]
 

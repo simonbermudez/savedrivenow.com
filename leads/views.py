@@ -88,7 +88,7 @@ def lead_create_view(request):
                     #     pass  # Skip welcome email if Celery not available
                     
                     messages.success(request, message)
-                    return redirect('lead_list')
+                    return redirect('thank_you')
             except Exception as e:
                 print("Error saving lead:", str(e))
                 import traceback
@@ -223,3 +223,8 @@ def vehicle_delete_view(request, pk):
         'lead': lead
     }
     return render(request, 'leads/vehicle_delete.html', context)
+
+
+def thank_you_view(request):
+    """Thank you page after successful lead submission"""
+    return render(request, 'leads/thank_you.html')
