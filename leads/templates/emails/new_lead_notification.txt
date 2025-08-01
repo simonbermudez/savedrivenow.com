@@ -1,0 +1,48 @@
+NEW LEAD ALERT - SaveDriveNow
+=====================================
+
+A potential customer has requested an insurance quote!
+
+CONTACT INFORMATION
+-------------------
+Name: {{ lead.full_name }}
+Email: {{ lead.email }}
+Phone: {{ lead.phone_number }}
+
+LOCATION
+--------
+Address: {{ lead.address }}
+City: {{ lead.city }}, {{ lead.state }} {{ lead.zip_code }}
+
+PERSONAL DETAILS
+----------------
+Date of Birth: {{ lead.birth_date|date:"F d, Y" }}
+Homeowner: {% if lead.is_homeowner %}Yes{% else %}No{% endif %}
+
+DRIVING HISTORY
+---------------
+Tickets (Past Year): {{ lead.tickets_past_year }}
+Accidents (Past Year): {{ lead.accidents_past_year }}
+
+VEHICLE INFORMATION
+-------------------
+{% if lead.vehicles.all %}
+{% for vehicle in lead.vehicles.all %}
+Vehicle {{ forloop.counter }}: {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+{% endfor %}
+{% else %}
+No vehicle information provided
+{% endif %}
+
+LEAD SUBMITTED
+--------------
+Date: {{ lead.created_at|date:"F d, Y" }}
+Time: {{ lead.created_at|time:"g:i A" }}
+
+Contact this lead:
+- Email: mailto:{{ lead.email }}
+- Phone: tel:{{ lead.phone_number }}
+
+---
+This email was automatically generated when a new lead was submitted on SaveDriveNow.
+© 2025 SaveDriveNow. All rights reserved.

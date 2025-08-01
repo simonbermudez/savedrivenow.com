@@ -142,10 +142,24 @@ class Lead(models.Model):
             raise ValidationError({'birth_date': 'Birth date cannot be in the future.'})
 
     def save(self, *args, **kwargs):
-        """Override save method to run full_clean"""
+        """Override save method to run full_clean and send notifications"""
         self.full_clean()
-        LeadsSubscriber.email_leads_to_active_subscribers(self)
+        
+        # Check if this is a new lead (being created for the first time)
+        is_new_lead = self.pk is None
+        
+        # Save the lead first
         super().save(*args, **kwargs)
+        
+        # Send notifications only for new leads
+        if is_new_lead:
+            # Send notification to subscribers
+            LeadsSubscriber.email_leads_to_active_subscribers(self)
+            
+            # Optionally send welcome email to the lead
+            # Uncomment the lines below if you want to send welcome emails
+            # from .email_utils import send_welcome_email
+            # send_welcome_email(self)
 
 
 class LeadsSubscriber(models.Model):
@@ -216,18 +230,20 @@ class LeadsSubscriber(models.Model):
 
     @classmethod
     def email_leads_to_active_subscribers(cls, lead):
-        """Send lead information to all active subscribers"""
-        from django.core.mail import send_mail
-        from django.conf import settings
+        """Send lead information to all active subscribers using beautiful HTML templates"""
+        from .email_utils import send_lead_notification_email
         
         active_subscribers = cls.objects.filter(is_active=True)
         
         for subscriber in active_subscribers:
-            send_mail(
-                subject=f"New Lead: {lead.full_name}",
-                message=f"New lead details:\n\n{lead}\n\nContact them at {lead.email} or {lead.phone_number}.",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[subscriber.email],
+            # Send email using the utility function
+            email_sent = send_lead_notification_email(
+                lead=lead,
+                recipient_email=subscriber.email,
+                subscriber=subscriber
             )
-            subscriber.number_of_leads_sent += 1
-            subscriber.save()
+            
+            # Only increment counter if email was sent successfully
+            if email_sent:
+                subscriber.number_of_leads_sent += 1
+                subscriber.save()

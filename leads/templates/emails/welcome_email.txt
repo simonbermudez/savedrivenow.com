@@ -1,0 +1,42 @@
+THANK YOU FOR CHOOSING SAVEDRIVENOW!
+=====================================
+
+Hello {{ lead.full_name }},
+
+Thank you for requesting an auto insurance quote through SaveDriveNow!
+
+We've successfully received your information and our trusted insurance 
+partners are already working to provide you with personalized quotes.
+
+WHAT HAPPENS NEXT?
+------------------
+1. QUOTE REVIEW
+   Our partner insurance companies will review your information
+
+2. PERSONALIZED QUOTES  
+   You'll receive customized insurance quotes within 24-48 hours
+
+3. COMPARE & CHOOSE
+   Compare rates and select the best coverage for your needs
+
+YOUR INFORMATION SUMMARY
+------------------------
+Name: {{ lead.full_name }}
+Email: {{ lead.email }}
+Phone: {{ lead.phone_number }}
+Location: {{ lead.city }}, {{ lead.state }}
+
+IMPORTANT: Keep an eye on your email and phone for quotes from our 
+trusted insurance partners. Some companies may contact you directly 
+to finalize your quote and answer any questions you might have.
+
+Want to get more quotes? Share SaveDriveNow with friends and family!
+Visit: https://savedrivenow.siber.live
+
+---
+Thank you for trusting SaveDriveNow with your auto insurance needs.
+
+Questions? Contact us at leads@savedrivenow.com
+
+© 2025 SaveDriveNow. All rights reserved.
+This is an automated message. Please do not reply to this email.
