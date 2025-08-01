@@ -51,6 +51,38 @@ class Command(BaseCommand):
         # Set a fake primary key for template rendering
         sample_lead.pk = 1
         
+        # We need to temporarily save the lead to create vehicles
+        try:
+            # Check if a test lead already exists
+            existing_lead = Lead.objects.filter(email="john.smith@example.com").first()
+            if existing_lead:
+                sample_lead = existing_lead
+                self.stdout.write("Using existing test lead")
+            else:
+                sample_lead.save()
+                self.stdout.write("Created new test lead")
+                
+            # Add some test vehicles if they don't exist
+            from leads.models import Vehicle
+            if not sample_lead.vehicles.exists():
+                Vehicle.objects.create(
+                    lead=sample_lead,
+                    year=2020,
+                    make="Toyota",
+                    model="Camry"
+                )
+                Vehicle.objects.create(
+                    lead=sample_lead,
+                    year=2018,
+                    make="Honda",
+                    model="Civic"
+                )
+                self.stdout.write("Added test vehicles")
+                
+        except Exception as e:
+            self.stdout.write(f"Note: Could not save test lead to database: {e}")
+            self.stdout.write("Proceeding with in-memory lead for email template testing")
+        
         test_email = options['test_email']
         
         self.stdout.write(

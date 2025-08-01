@@ -40,7 +40,7 @@
                                         
                                         <!-- Lead Name -->
                                         <div style="font-size: 22px; font-weight: bold; color: #667eea; margin-bottom: 15px;">
-                                            👤 {{ lead.full_name }}
+                                            👤 John Smith
                                         </div>
                                         
                                         <!-- Contact Information -->
@@ -51,11 +51,11 @@
                                             <tr>
                                                 <td style="width: 50%; padding-right: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">EMAIL ADDRESS</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.email }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">test-john.smith@example.com</div>
                                                 </td>
                                                 <td style="width: 50%; padding-left: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">PHONE NUMBER</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.phone_number }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">+15551234567</div>
                                                 </td>
                                             </tr>
                                         </table>
@@ -68,11 +68,11 @@
                                             <tr>
                                                 <td style="width: 50%; padding-right: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">ADDRESS</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.address }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">123 Main Street</div>
                                                 </td>
                                                 <td style="width: 50%; padding-left: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">CITY, STATE ZIP</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.city }}, {{ lead.state }} {{ lead.zip_code }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">Springfield, IL 62701</div>
                                                 </td>
                                             </tr>
                                         </table>
@@ -85,11 +85,11 @@
                                             <tr>
                                                 <td style="width: 50%; padding-right: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">DATE OF BIRTH</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.birth_date|date:"F d, Y" }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">May 15, 1985</div>
                                                 </td>
                                                 <td style="width: 50%; padding-left: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">HOMEOWNER</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{% if lead.is_homeowner %}Yes{% else %}No{% endif %}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">Yes</div>
                                                 </td>
                                             </tr>
                                         </table>
@@ -102,49 +102,57 @@
                                             <tr>
                                                 <td style="width: 50%; padding-right: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">TICKETS (PAST YEAR)</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.tickets_past_year }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">0</div>
                                                 </td>
                                                 <td style="width: 50%; padding-left: 10px; vertical-align: top;">
                                                     <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">ACCIDENTS (PAST YEAR)</div>
-                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">{{ lead.accidents_past_year }}</div>
+                                                    <div style="font-size: 14px; color: #343a40; font-weight: 500;">1</div>
                                                 </td>
                                             </tr>
                                         </table>
                                         
                                         <!-- Vehicle Information -->
                                         <div style="font-size: 16px; font-weight: 600; color: #495057; margin: 15px 0 10px 0;">
-                                            🚗 Vehicle{% if lead.vehicles.count > 1 %}s{% endif %} ({{ lead.vehicles.count }})
+                                            🚗 Vehicles (2)
                                         </div>
                                         
-                                        {% if lead.vehicles.all %}
+                                        
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px;">
-                                            {% for vehicle in lead.vehicles.all %}
+                                            
                                             <tr>
-                                                <td style="padding: 12px; border-bottom: {% if not forloop.last %}1px solid #e9ecef{% else %}none{% endif %};">
+                                                <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                                                         <tr>
                                                             <td style="width: 40px; vertical-align: top;">
                                                                 <div style="background-color: #667eea; color: white; border-radius: 50%; width: 32px; height: 32px; text-align: center; line-height: 32px; font-size: 14px;">🚗</div>
                                                             </td>
                                                             <td style="padding-left: 10px; vertical-align: top;">
-                                                                <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</div>
-                                                                <div style="font-size: 12px; color: #6c757d;">Vehicle #{{ forloop.counter }}</div>
+                                                                <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">2020 Toyota Camry</div>
+                                                                <div style="font-size: 12px; color: #6c757d;">Vehicle #1</div>
                                                             </td>
                                                         </tr>
                                                     </table>
                                                 </td>
                                             </tr>
-                                            {% endfor %}
-                                        </table>
-                                        {% else %}
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; background-color: #fff; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px;">
+                                            
                                             <tr>
-                                                <td style="padding: 15px; text-align: center; color: #6c757d;">
-                                                    No vehicle information provided
+                                                <td style="padding: 12px; border-bottom: none;">
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+                                                        <tr>
+                                                            <td style="width: 40px; vertical-align: top;">
+                                                                <div style="background-color: #667eea; color: white; border-radius: 50%; width: 32px; height: 32px; text-align: center; line-height: 32px; font-size: 14px;">🚗</div>
+                                                            </td>
+                                                            <td style="padding-left: 10px; vertical-align: top;">
+                                                                <div style="font-weight: 600; color: #495057; margin-bottom: 2px;">2018 Honda Civic</div>
+                                                                <div style="font-size: 12px; color: #6c757d;">Vehicle #2</div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
                                                 </td>
                                             </tr>
+                                            
                                         </table>
-                                        {% endif %}
+                                        
                                         
                                         <!-- Contact Buttons -->
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; margin-top: 20px;">
@@ -153,7 +161,7 @@
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                                                         <tr>
                                                             <td style="background-color: #667eea; border-radius: 6px; text-align: center;">
-                                                                <a href="mailto:{{ lead.email }}" style="display: block; padding: 12px 20px; color: white; text-decoration: none; font-weight: 500;">
+                                                                <a href="mailto:test-john.smith@example.com" style="display: block; padding: 12px 20px; color: white; text-decoration: none; font-weight: 500;">
                                                                     📧 Send Email
                                                                 </a>
                                                             </td>
@@ -164,7 +172,7 @@
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                                                         <tr>
                                                             <td style="background-color: #28a745; border-radius: 6px; text-align: center;">
-                                                                <a href="tel:{{ lead.phone_number }}" style="display: block; padding: 12px 20px; color: white; text-decoration: none; font-weight: 500;">
+                                                                <a href="tel:+15551234567" style="display: block; padding: 12px 20px; color: white; text-decoration: none; font-weight: 500;">
                                                                     📞 Call Now
                                                                 </a>
                                                             </td>
@@ -183,7 +191,7 @@
                                 <tr>
                                     <td style="padding: 15px; text-align: center;">
                                         <div style="font-size: 12px; color: #6c757d; margin-bottom: 5px;">LEAD SUBMITTED</div>
-                                        <div style="font-size: 14px; font-weight: 600; color: #495057;">{{ lead.created_at|date:"F d, Y" }} at {{ lead.created_at|time:"g:i A" }}</div>
+                                        <div style="font-size: 14px; font-weight: 600; color: #495057;">August 01, 2025 at 11:12 AM</div>
                                     </td>
                                 </tr>
                             </table>
