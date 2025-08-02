@@ -23,6 +23,9 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Run celery worker 
+celery -A savedrivenow worker --loglevel=info --concurrency=4 --detach
+
 # Start the application
 echo "Starting Django application..."
 exec "$@"
