@@ -139,10 +139,23 @@ def send_emails_to_subscribers_async(lead_id):
         lead_id: The ID of the Lead instance
     """
     try:
-        from leads.models import LeadsSubscriber
+        from leads.models import LeadsSubscriber, Lead
+        from django.db import models
+        from django.db.models import Count
         
-        # Get all active subscribers
-        active_subscribers = LeadsSubscriber.objects.filter(is_active=True)
+        # Get the lead to access its state
+        lead = Lead.objects.get(id=lead_id)
+        
+        # Get active subscribers who want leads from this state
+        # For ManyToMany fields, we need to check if the relationship exists differently
+        # Get subscribers who either:
+        # 1. Have the specific state selected, OR
+        # 2. Have no states selected at all (count = 0)
+        active_subscribers = LeadsSubscriber.objects.filter(is_active=True).annotate(
+            states_count=Count('states')
+        ).filter(
+            models.Q(states__code=lead.state) | models.Q(states_count=0)
+        ).distinct()
         
         # Queue individual email tasks for each subscriber
         for subscriber in active_subscribers:
@@ -152,7 +165,7 @@ def send_emails_to_subscribers_async(lead_id):
                 subscriber_id=subscriber.id
             )
         
-        logger.info(f"Queued lead notification emails for {active_subscribers.count()} subscribers for lead {lead_id}")
+        logger.info(f"Queued lead notification emails for {active_subscribers.count()} subscribers for lead {lead_id} (State: {lead.state})")
         return True
         
     except Exception as e:

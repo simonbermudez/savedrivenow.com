@@ -3,6 +3,55 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 import re
 
+# US States choices for the state field
+US_STATES = [
+    ('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 'Arkansas'),
+    ('CA', 'California'), ('CO', 'Colorado'), ('CT', 'Connecticut'), ('DE', 'Delaware'),
+    ('FL', 'Florida'), ('GA', 'Georgia'), ('HI', 'Hawaii'), ('ID', 'Idaho'),
+    ('IL', 'Illinois'), ('IN', 'Indiana'), ('IA', 'Iowa'), ('KS', 'Kansas'),
+    ('KY', 'Kentucky'), ('LA', 'Louisiana'), ('ME', 'Maine'), ('MD', 'Maryland'),
+    ('MA', 'Massachusetts'), ('MI', 'Michigan'), ('MN', 'Minnesota'), ('MS', 'Mississippi'),
+    ('MO', 'Missouri'), ('MT', 'Montana'), ('NE', 'Nebraska'), ('NV', 'Nevada'),
+    ('NH', 'New Hampshire'), ('NJ', 'New Jersey'), ('NM', 'New Mexico'), ('NY', 'New York'),
+    ('NC', 'North Carolina'), ('ND', 'North Dakota'), ('OH', 'Ohio'), ('OK', 'Oklahoma'),
+    ('OR', 'Oregon'), ('PA', 'Pennsylvania'), ('RI', 'Rhode Island'), ('SC', 'South Carolina'),
+    ('SD', 'South Dakota'), ('TN', 'Tennessee'), ('TX', 'Texas'), ('UT', 'Utah'),
+    ('VT', 'Vermont'), ('VA', 'Virginia'), ('WA', 'Washington'), ('WV', 'West Virginia'),
+    ('WI', 'Wisconsin'), ('WY', 'Wyoming'), ('DC', 'Washington D.C.'),
+]
+
+
+class State(models.Model):
+    """Model to store US states"""
+    code = models.CharField(
+        max_length=2,
+        choices=US_STATES,
+        unique=True,
+        help_text="Two-letter state code"
+    )
+    
+    name = models.CharField(
+        max_length=50,
+        help_text="Full state name"
+    )
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = "State"
+        verbose_name_plural = "States"
+    
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+    
+    def save(self, *args, **kwargs):
+        """Auto-populate name from choices"""
+        if not self.name:
+            for code, name in US_STATES:
+                if code == self.code:
+                    self.name = name
+                    break
+        super().save(*args, **kwargs)
+
 
 class Vehicle(models.Model):
     """Model to store vehicle information for leads"""
@@ -157,6 +206,12 @@ class LeadsSubscriber(models.Model):
         help_text="Email address of the subscriber who receives leads"
     )
     
+    states = models.ManyToManyField(
+        State,
+        blank=True,
+        help_text="States from which this subscriber wants to receive leads"
+    )
+    
     number_of_leads_purchased = models.PositiveIntegerField(
         default=0,
         help_text="Total number of leads purchased by this subscriber"
@@ -182,7 +237,8 @@ class LeadsSubscriber(models.Model):
         verbose_name_plural = "Leads Subscribers"
     
     def __str__(self):
-        return f"{self.email} - Purchased: {self.number_of_leads_purchased}, Sent: {self.number_of_leads_sent}"
+        states_str = ", ".join([state.code for state in self.states.all()]) if self.states.exists() else "All"
+        return f"{self.email} - States: {states_str} - Purchased: {self.number_of_leads_purchased}, Sent: {self.number_of_leads_sent}"
     
     def clean(self):
         """Custom validation method"""
@@ -230,8 +286,18 @@ class LeadsSubscriber(models.Model):
     def email_leads_to_active_subscribers_sync(cls, lead):
         """Send lead information to all active subscribers synchronously (fallback)"""
         from .email_utils import send_lead_notification_email
+        from django.db.models import Count
         
-        active_subscribers = cls.objects.filter(is_active=True)
+        # Filter active subscribers who want leads from this state
+        # For ManyToMany fields, we need to check if the relationship exists differently
+        # Get subscribers who either:
+        # 1. Have the specific state selected, OR
+        # 2. Have no states selected at all (count = 0)
+        active_subscribers = cls.objects.filter(is_active=True).annotate(
+            states_count=Count('states')
+        ).filter(
+            models.Q(states__code=lead.state) | models.Q(states_count=0)
+        ).distinct()
         
         for subscriber in active_subscribers:
             # Send email using the utility function

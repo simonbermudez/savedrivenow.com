@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import path
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .models import Lead, Vehicle, LeadsSubscriber
+from .models import Lead, Vehicle, LeadsSubscriber, State
 
 # Register your models here.
 
@@ -59,12 +59,28 @@ class VehicleAdmin(admin.ModelAdmin):
 
 @admin.register(LeadsSubscriber)
 class LeadsSubscriberAdmin(admin.ModelAdmin):
-    list_display = ('email', 'number_of_leads_purchased', 'number_of_leads_sent', 'remaining_leads', 'is_active', 'created_at')
-    list_filter = ('is_active', 'created_at', 'updated_at')
+    list_display = ('email', 'get_states', 'number_of_leads_purchased', 'number_of_leads_sent', 'remaining_leads', 'is_active', 'created_at')
+    list_filter = ('is_active', 'states', 'created_at', 'updated_at')
     search_fields = ('email',)
-    readonly_fields = ('created_at', 'updated_at', 'remaining_leads', 'number_of_leads_sent', 'remaining_leads', 'is_active')
+    readonly_fields = ('created_at', 'updated_at', 'remaining_leads', 'number_of_leads_sent', 'is_active')
+    filter_horizontal = ('states',)  # This creates a nice multi-select widget
     ordering = ('-created_at',)
     
     def remaining_leads(self, obj):
         return obj.remaining_leads
     remaining_leads.short_description = 'Remaining Leads'
+    
+    def get_states(self, obj):
+        """Display selected states in the list view"""
+        states = obj.states.all()
+        if states.exists():
+            return ", ".join([f"{state.code}" for state in states])
+        return "All States"
+    get_states.short_description = 'States'
+
+
+@admin.register(State)
+class StateAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name')
+    search_fields = ('code', 'name')
+    ordering = ('name',)
